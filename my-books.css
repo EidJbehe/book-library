@@ -32,7 +32,7 @@ nav a {
   color: #333;
   padding: 10px 15px;
   border-radius: 10px;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition: 0.5s;
 }
 nav a:hover {
   background-color: #0097a7;
