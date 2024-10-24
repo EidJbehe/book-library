@@ -3,64 +3,61 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Bookly</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400;1,700;1,900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap"
-      rel="stylesheet"
-    />
+    <title>Welcome to Bookly</title>
     <link rel="stylesheet" href="style.css" />
   </head>
-  <body onload="renderBooks()">
+  <body>
+    <header class="header">
+      <nav>
+        <h1 style="color: black">Bookly</h1>
+        <ul>
+          <li><a href="#features">Features</a></li>
+          <li><a href="#about">About</a></li>
+        </ul>
+      </nav>
+      <div class="hero">
+        <h2>Your Personal Book Library</h2>
+        <p>Manage your books, track your reading, and more!</p>
+        <a href="./my-books.html" class="cta-btn">Go To My Books</a>
+      </div>
+    </header>
     <div class="container">
-      <header>
-        <h1><a href="#">Bookly</a></h1>
-        <nav>
-          <a href="#home">Home</a>
-          <a href="#add-book">Add Book</a>
-          <a href="#my-library">My Library</a>
-          <a href="#about">About</a>
-        </nav>
-      </header>
+      <section id="features" class="features">
+        <h2>Features</h2>
+        <div class="feature-list">
+          <div class="feature">
+            <h3>Add Books</h3>
+            <p class="mainText">
+              Easily add books to your library with title, author, and genre.
+            </p>
+          </div>
+          <div class="feature">
+            <h3>Track Your Reading</h3>
+            <p class="mainText">
+              Mark books as "Read" or "Unread" and manage your reading list.
+            </p>
+          </div>
+          <div class="feature">
+            <h3>Search & Discover</h3>
+            <p class="mainText">Find books by title or author quickly.</p>
+          </div>
+        </div>
+      </section>
     </div>
     <div class="container">
-      <main>
-        <div class="search-bar">
-          <input
-            type="text"
-            id="search-input"
-            placeholder="Search by title or author..."
-          />
-          <button id="search-button">Search</button>
-        </div>
-
-        <div class="add-book">
-          <h2>Add a New Book</h2>
-          <input type="text" id="title" placeholder="Book Title" required />
-          <input type="text" id="author" placeholder="Author" required />
-          <input
-            type="text"
-            id="cover"
-            placeholder="Cover Image URL"
-            required
-          />
-          <button id="add-button">Add Book</button>
-        </div>
-
-        <div class="book-catalog" id="book-catalog">
-          <!-- Books will be dynamically added here -->
-        </div>
-      </main>
+      <section id="about" class="about">
+        <h2>About Bookly</h2>
+        <p class="mainText" style="color: white">
+          Bookly is your personal book catalog system designed to help you keep
+          track of your reading habits, discover new books, and organize your
+          collection effortlessly.
+        </p>
+      </section>
     </div>
-    <div class="container">
-      <footer>
-        <p>&copy; 2024 Bookly. All rights reserved.</p>
-      </footer>
-    </div>
+    <footer class="footer" id="contact">
+      <p>&copy; 2024 Bookly. All rights reserved.</p>
+    </footer>
 
-    <!-- <script src="script.js"></script> -->
     <script src="script.js"></script>
-    <!-- Link to your JavaScript file -->
   </body>
 </html>
