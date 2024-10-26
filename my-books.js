@@ -1,141 +1,208 @@
 let books = [];
+let readingList = [];
 
+// Load books from localStorage
+function loadBooks() {
+    const storedBooks = localStorage.getItem("books");
+    if (storedBooks) {
+        books = JSON.parse(storedBooks);
+    }
+
+    const storedReadingList = localStorage.getItem("readingList");
+    if (storedReadingList) {
+        readingList = JSON.parse(storedReadingList);
+        renderReadingList();
+    }
+}
+
+// Save books to localStorage
+function saveBooks() {
+    localStorage.setItem("books", JSON.stringify(books));
+}
+
+// Save reading list to localStorage
+function saveReadingList() {
+    localStorage.setItem("readingList", JSON.stringify(readingList));
+}
+
+// Function to fetch books from Open Library (optional, as we will primarily use local storage)
+async function fetchBook(query = "king") {
+    const catalog = document.getElementById("book-catalog");
+    catalog.innerHTML = `<p>Loading...</p>`; // Show loading message
+
+    try {
+        const response = await fetch(`https://openlibrary.org/search.json?q=${query}`);
+        const data = await response.json();
+
+        // Extract relevant book details from the response
+        books = data.docs.map(book => ({
+            title: book.title,
+            author: book.author_name ? book.author_name.join(', ') : 'Unknown',
+            cover: book.cover_i ? `https://covers.openlibrary.org/b/id/${book.cover_i}-M.jpg` : 'placeholder.jpg',
+            genre: book.subject ? book.subject.join(', ') : 'N/A',
+            first_publish_year: book.first_publish_year || 'N/A',
+            key: book.key // This is used for the details page
+        }));
+
+        renderBooks();
+    } catch (error) {
+        console.error("Error fetching books:", error);
+        catalog.innerHTML = `<p class="error-message">Failed to load books. Please try again later.</p>`;
+    }
+}
+function toggleReadStatus(index) {
+    books[index].read = !books[index].read; // Toggle read status
+    saveBooks(); // Save changes to localStorage
+    renderBooks(); // Re-render to reflect changes
+}
 // Function to render the book catalog
 function renderBooks() {
-  const catalog = document.getElementById("book-catalog");
-  catalog.innerHTML = ""; // Clear the catalog
+    const catalog = document.getElementById("book-catalog");
+    catalog.innerHTML = ""; // Clear the catalog
 
-  if (books.length === 0) {
-    catalog.innerHTML = `<p class="no-books-message">There are no books in your library yet!</p>`;
-    return;
-  }
+    if (books.length === 0) {
+        catalog.innerHTML = `<p class="no-books-message">No books found matching your search criteria.</p>`;
+        return;
+    }
 
-  books.forEach((book, index) => {
-    const bookItem = document.createElement("div");
-    bookItem.className = "book-item";
-    bookItem.innerHTML = `
-      <img src="${book.cover}" alt="${
-      book.title
-    } Cover" style="width:100px; height:auto;">
-      <h2>${book.title}</h2>
-      <p>${book.author}</p>
-      <span class="status">${book.read ? "Read" : "Unread"}</span>
-      <button onclick="toggleReadStatus(${index})">${
-      book.read ? "Mark as Unread" : "Mark as Read"
-    }</button>
-      <button onclick="confirmRemoveBook(${index})">Remove</button>
-    `;
+    const bookNum = books.slice(0, 20); // Limit the number of books displayed
 
-    // Animate the new book
-    bookItem.style.opacity = 0;
-    setTimeout(() => {
-      bookItem.style.opacity = 1;
-    }, 100);
+    bookNum.forEach((book, index) => {
+        const bookItem = document.createElement("div");
+        bookItem.className = "book-item";
 
-    catalog.appendChild(bookItem);
-  });
+        const coverImage = document.createElement("img");
+        coverImage.src = book.cover;
+        coverImage.alt = `${book.title} Cover`;
+        coverImage.style.width = "100px";
+        coverImage.style.height = "auto";
+
+        bookItem.appendChild(coverImage);
+        bookItem.innerHTML += `
+            <h2>${book.title}</h2>
+            <p>${book.author}</p>
+            <p>First published: ${book.first_publish_year}</p>
+            <button onclick="openBookDetails('${book.key}')">More Details</button>
+            <button onclick="addToReadingList(${index})">Add to Reading List</button>
+            <button onclick="toggleReadStatus(${index})">${book.read ? "Mark as Unread" : "Mark as Read"}</button>
+
+            `;
+
+        catalog.appendChild(bookItem);
+    });
 }
 
-// Function to add a new book
-document.getElementById("add-button").addEventListener("click", () => {
-  const title = document.getElementById("title").value;
-  const author = document.getElementById("author").value;
-  const cover = document.getElementById("cover").value;
-
-  if (title && author && cover) {
-    books.push({ title, author, cover, read: false });
-
-    renderBooks();
-    clearInputFields();
-
-    // Show success message
-    showAlert("Book added successfully!", "success");
-  } else {
-    showAlert("Please fill all the fields!", "error");
-  }
-});
-
-// Function to clear input fields
-function clearInputFields() {
-  document.getElementById("title").value = "";
-  document.getElementById("author").value = "";
-  document.getElementById("cover").value = "";
+function openBookDetails(bookKey) {
+    window.location.href = `./bookdetails/bookDetails.html?key=${bookKey}`;
 }
 
-// Function to toggle read status
-function toggleReadStatus(index) {
-  books[index].read = !books[index].read;
-  renderBooks();
+// Function to add a book to the reading list
+function addToReadingList(index) {
+    const bookItem = books[index];
 
-  // Show status change message
-  showAlert("Book status updated!", "info");
+    // Avoid duplicate entries in the reading list
+    if (!readingList.some(item => item.key === bookItem.key)) {
+        readingList.push(bookItem);
+        saveReadingList();
+        renderReadingList();
+    }
 }
 
-// Function to confirm removal of a book
-function confirmRemoveBook(index) {
-  const confirmAction = confirm("Are you sure you want to remove this book?");
-  if (confirmAction) {
-    removeBook(index);
-  }
+// Function to render the reading list
+function renderReadingList() {
+    const readingListContainer = document.getElementById("reading-list-items");
+    readingListContainer.innerHTML = ""; // Clear the reading list
+
+    readingList.forEach((book) => {
+        const listItem = document.createElement("div");
+        listItem.className = "reading-list-item";
+        listItem.dataset.key = book.key;
+        listItem.innerHTML = `
+            <h3>${book.title}</h3>
+            <p>${book.author}</p>
+            <button onclick="removeFromReadingList('${book.key}')">Remove</button>
+        `;
+        readingListContainer.appendChild(listItem);
+    });
 }
 
-// Function to remove a book
-function removeBook(index) {
-  books.splice(index, 1);
-  renderBooks();
-
-  // Show success message
-  showAlert("Book removed successfully!", "success");
+// Function to remove a book from the reading list
+function removeFromReadingList(bookKey) {
+    readingList = readingList.filter(book => book.key !== bookKey);
+    saveReadingList();
+    renderReadingList();
 }
 
 // Function to search for books
 document.getElementById("search-button").addEventListener("click", () => {
-  const searchInput = document
-    .getElementById("search-input")
-    .value.toLowerCase();
-  const filteredBooks = books.filter(
-    (book) =>
-      book.title.toLowerCase().includes(searchInput) ||
-      book.author.toLowerCase().includes(searchInput)
-  );
+    const searchInput = document.getElementById("search-input").value.toLowerCase();
+    const filteredBooks = books.filter(
+        (book) =>
+            book.title.toLowerCase().includes(searchInput) ||
+            book.author.toLowerCase().includes(searchInput)
+    );
 
-  const catalog = document.getElementById("book-catalog");
-  catalog.innerHTML = ""; // Clear the catalog
+    const catalog = document.getElementById("book-catalog");
+    catalog.innerHTML = ""; // Clear the catalog
 
-  if (filteredBooks.length === 0) {
-    catalog.innerHTML = `<p class="no-books-message">No books match your search criteria.</p>`;
-    return;
-  }
+    if (filteredBooks.length === 0) {
+        catalog.innerHTML = `<p class="no-books-message">No books match your search criteria.</p>`;
+        return;
+    }
 
-  filteredBooks.forEach((book, index) => {
-    const bookItem = document.createElement("div");
-    bookItem.className = "book-item";
-    bookItem.innerHTML = `
-      <img src="${book.cover}" alt="${
-      book.title
-    } Cover" style="width:100px; height:auto;">
-      <h2>${book.title}</h2>
-      <p>${book.author}</p>
-      <span class="status">${book.read ? "Read" : "Unread"}</span>
-      <button onclick="toggleReadStatus(${index})">${
-      book.read ? "Mark as Unread" : "Mark as Read"
-    }</button>
-      <button onclick="confirmRemoveBook(${index})">Remove</button>
-    `;
-    catalog.appendChild(bookItem);
-  });
+    filteredBooks.forEach((book, index) => {
+        const bookItem = document.createElement("div");
+        bookItem.className = "book-item";
+        const coverImage = document.createElement("img");
+        coverImage.src = book.cover;
+        coverImage.alt = `${book.title} Cover`;
+        coverImage.style.width = "100px";
+        coverImage.style.height = "auto";
+
+        bookItem.appendChild(coverImage);
+        bookItem.innerHTML += `
+            <h2>${book.title}</h2>
+            <p>${book.author}</p>
+            
+            <p>First published: ${book.first_publish_year}</p>
+          <button onclick="openBookDetails('${book.key}')">More Details</button>
+
+            <button onclick="toggleReadStatus(${index})">${book.read ? "Mark as Unread" : "Mark as Read"}</button>
+            <button onclick="addToReadingList(${index})">Add to Reading List</button>
+        `;
+        catalog.appendChild(bookItem);
+    });
 });
+document.getElementById("add-button").addEventListener("click", () => {
+    const title = document.getElementById("title").value.trim();
+    const author = document.getElementById("author").value.trim();
+    const genre = document.getElementById("genre").value.trim();
+    const cover = document.getElementById("cover").value.trim();
 
-// Function to show alerts
-function showAlert(message, type) {
-  const alertBox = document.createElement("div");
-  alertBox.className = `alert alert-${type}`;
-  alertBox.textContent = message;
+    if (title && author && genre && cover) {
+        // Create a new book object
+        const newBook = {
+            title,
+            author,
+            genre,
+            cover,
+            first_publish_year: 'N/A', // You can update this later if needed
+            key: `newBook-${Date.now()}` // Unique key for the book
+        };
 
-  document.body.appendChild(alertBox);
+        // Add new book to the books array
+        books.unshift(newBook);
+        saveBooks(); // Save updated books array to localStorage
+        renderBooks(); // Re-render the book catalog
 
-  setTimeout(() => {
-    alertBox.style.opacity = 0;
-    setTimeout(() => alertBox.remove(), 500);
-  }, 2000);
-}
+        // Clear input fields
+        document.getElementById("title").value = "";
+        document.getElementById("author").value = "";
+        document.getElementById("genre").value = "";
+        document.getElementById("cover").value = "";
+    } else {
+        alert("Please fill in all fields.");
+    }
+});
+// Load books and reading list from localStorage on page load
+loadBooks();
