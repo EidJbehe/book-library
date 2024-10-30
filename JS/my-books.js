@@ -10,7 +10,7 @@ function loadBooks() {
 
   const storedBooks = localStorage.getItem("books");
   console.log(storedBooks);
-  
+
   if (storedBooks) {
     books = JSON.parse(storedBooks);
     if (books.length > 0) {
@@ -94,8 +94,6 @@ async function renderBooks() {
   const catalog = document.getElementById("book-catalog");
   catalog.innerHTML = ""; // Clear catalog
 
-  
-
   const countInput = document.getElementById("countToDisplay");
   const countToDisplay = parseInt(countInput.value) || books.length;
   const bookNum = books.slice(0, countToDisplay);
@@ -133,7 +131,6 @@ function toggleReadStatus(index) {
   renderBooks(); // Re-render to reflect changes
 }
 // Function to render the book catalog
-
 
 function openBookDetails(bookKey) {
   window.location.href = `../HTML/bookDetails.html?key=${bookKey}`;
@@ -214,7 +211,7 @@ document.getElementById("add-button").addEventListener("click", () => {
 
     // Add new book to the books array
     books.unshift(newBook);
-    
+
     saveBooks(); // Save updated books array to localStorage
     alert("New Book Added Successfully");
     renderBooks(); // Re-render the book catalog

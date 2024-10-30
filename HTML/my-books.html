@@ -14,7 +14,9 @@
   </head>
   <body onload="renderBooks()">
     <header>
-      <a href="../index.html"><img src="../images/logo.jpg" class="logo" alt="logo" /></a>
+      <a href="../index.html"
+        ><img src="../images/logo.jpg" class="logo" alt="logo"
+      /></a>
       <h1><a href="../index.html">Bookly</a></h1>
       <nav>
         <a href="./reading-list.html">Reading List</a>
@@ -48,6 +50,8 @@
             type="number"
             placeholder="number of books to display"
             id="countToDisplay"
+            min="1"
+            max="99"
           />
         </div>
         <div id="loading">
