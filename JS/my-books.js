@@ -9,7 +9,6 @@ function loadBooks() {
   const catalog = document.getElementById("book-catalog");
 
   const storedBooks = localStorage.getItem("books");
-  console.log(storedBooks);
 
   if (storedBooks) {
     books = JSON.parse(storedBooks);
