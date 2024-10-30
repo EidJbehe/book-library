@@ -129,7 +129,6 @@ function toggleReadStatus(index) {
   saveBooks(); // Save changes to localStorage
   renderBooks(); // Re-render to reflect changes
 }
-// Function to render the book catalog
 
 function openBookDetails(bookKey) {
   window.location.href = `../HTML/bookDetails.html?key=${bookKey}`;
