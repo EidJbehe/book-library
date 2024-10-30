@@ -3,7 +3,6 @@ let readingList = [];
 document
   .getElementById("countToDisplay")
   .addEventListener("input", renderBooks);
-let loading = false;
 // Load books from localStorage
 function loadBooks() {
   const catalog = document.getElementById("book-catalog");
